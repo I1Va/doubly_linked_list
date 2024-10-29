@@ -1,0 +1,6 @@
+docs
+build
+debug
+*.out
+*.d
+*.exe
