@@ -1,0 +1,30 @@
+digraph G{
+   rankdir=LR;
+   NODE0[shape="box",label="0"];
+   NODE1[shape="box",label="1"];
+   NODE2[shape="box",label="2"];
+   NODE3[shape="box",label="3"];
+   NODE4[shape="box",label="4"];
+   NODE5[shape="box",label="5"];
+   NODE6[shape="box",label="6"];
+   NODE7[shape="box",label="7"];
+   NODE8[shape="box",label="8"];
+   NODE9[shape="box",label="9"];
+   NODE1024 -> NODE0 [weight=1,color="black"];
+   NODE1024 -> NODE1 [weight=2,color="black"];
+   NODE1024 -> NODE2 [weight=3,color="black"];
+   NODE1024 -> NODE3 [weight=4,color="black"];
+   NODE1024 -> NODE4 [weight=5,color="black"];
+   NODE1024 -> NODE5 [weight=6,color="black"];
+   NODE1024 -> NODE6 [weight=7,color="black"];
+   NODE1024 -> NODE7 [weight=8,color="black"];
+   NODE1024 -> NODE8 [weight=9,color="black"];
+   NODE0 -> NODE0 [color="green",penwidth=2];
+   NODE5 -> NODE1 [color="blue",penwidth=1];
+   NODE4 -> NODE2 [color="blue",penwidth=1];
+   NODE3 -> NODE2 [color="green",penwidth=2];
+   NODE4 -> NODE1 [color="green",penwidth=2];
+   NODE5 -> NODE7 [color="green",penwidth=2];
+   NODE4 -> NODE7 [color="blue",penwidth=1];
+   NODE8 -> NODE6 [color="green",penwidth=2];
+}

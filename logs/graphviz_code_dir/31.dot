@@ -1,8 +1,5 @@
 digraph G{
-   layout="dot";
-   splines="ortho";
-   rankdir="TB";
-
+   rankdir=TB;
    NODE0[pin=true,shape="box",label="0"];
    NODE1[pin=true,shape="box",label="1"];
    NODE2[pin=true,shape="box",label="2"];
@@ -13,17 +10,15 @@ digraph G{
    NODE7[pin=true,shape="box",label="7"];
    NODE8[pin=true,shape="box",label="8"];
    NODE9[pin=true,shape="box",label="9"];
-   {rank="same"; "NODE0"; "NODE1"; "NODE2"; "NODE3"; "NODE4"; "NODE5"; "NODE6"; "NODE7"; "NODE8"; "NODE9"}
    NODE0 -> NODE1 [weight=1024,color="white"];
    NODE1 -> NODE2 [weight=1024,color="white"];
    NODE2 -> NODE3 [weight=1024,color="white"];
    NODE3 -> NODE4 [weight=1024,color="white"];
-   NODE4 -> NODE5 [weight=1024,color="white"];  
+   NODE4 -> NODE5 [weight=1024,color="white"];
    NODE5 -> NODE6 [weight=1024,color="white"];
    NODE6 -> NODE7 [weight=1024,color="white"];
    NODE7 -> NODE8 [weight=1024,color="white"];
    NODE8 -> NODE9 [weight=1024,color="white"];
-
    NODE0 -> NODE0 [color="green",penwidth=2];
    NODE5 -> NODE1 [color="blue",penwidth=1];
    NODE4 -> NODE2 [color="blue",penwidth=1];

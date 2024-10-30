@@ -15,6 +15,7 @@
 // (
 
 const int EDGE_MAX_WEIGHT = 1024;
+const int SIMP_EDGE_WIDTH = 2;
 
 struct log_dir_t {
     char log_dir[MAX_LOG_FILE_PATH_SZ];
@@ -160,11 +161,15 @@ void graphviz_end_graph(FILE *graphviz_code_file) {
 }
 
 void graphviz_make_node(FILE *graphviz_code_file, int node_idx) {
-    fprintf(graphviz_code_file, "   NODE%d[shape=\"box\",label=\"%d\"];\n", node_idx, node_idx);
+    fprintf(graphviz_code_file, "   NODE%d[pin=true,shape=\"box\",label=\"%d\"];\n", node_idx, node_idx);
 }
 
-void graphviz_make_heavy_edge(FILE *graphviz_code_file, int node_idx1, int node_idx2) {
-    fprintf(graphviz_code_file, "   NODE%d -> NODE%d [weight=%d,color=\"white\"];\n", node_idx1, node_idx2);
+void graphviz_make_heavy_unvisible_edge(FILE *graphviz_code_file, int node_idx1, int node_idx2) {
+    fprintf(graphviz_code_file, "   NODE%d -> NODE%d [weight=%d,color=\"white\"];\n", node_idx1, node_idx2, EDGE_MAX_WEIGHT);
+    // FIXME: кажется, что делать рербра белыми - костыль
+}
+void graphviz_make_edge(FILE *graphviz_code_file, int node_idx1, int node_idx2, const char color[] = "black", int penwidth=SIMP_EDGE_WIDTH) {
+    fprintf(graphviz_code_file, "   NODE%d -> NODE%d [color=\"%s\",penwidth=%d];\n", node_idx1, node_idx2, color, penwidth);
     // FIXME: кажется, что делать рербра белыми - костыль
 }
 
@@ -199,8 +204,29 @@ bool DL_list_generate_graph_img(DL_list_t *list, char short_img_path[]) {
         graphviz_make_node(graphviz_code_file, i);
     }
     for (int i = 1; i < list->size; i++) {
-        graphviz_make_heavy_edge(graphviz_code_file, i - 1, i);
+        graphviz_make_heavy_unvisible_edge(graphviz_code_file, i - 1, i);
     }
+
+    // list->data[0].next = 0;
+    // list->data[0].next = 0;
+    // list->data[2].prev = 4;
+    // list->data[3].next = 3;
+    // list->data[1].prev = 5; // EXAMPLE
+    // list->data[4].next = 1;
+    // list->data[3].next = 2;
+    // list->data[8].next = 6;
+    // list->data[7].prev = 4;
+    // list->data[5].next = 7;
+
+    for (int i = 0; i < list->size; i++) {
+        if (list->data[i].next != -1) {
+            graphviz_make_edge(graphviz_code_file, i, list->data[i].next, "green", 2);
+        }
+        if (list->data[i].prev != -1) {
+            graphviz_make_edge(graphviz_code_file, list->data[i].prev, i, "blue", 1);
+        }
+    }
+
     graphviz_end_graph(graphviz_code_file);
     // MAKING GRAPH
 

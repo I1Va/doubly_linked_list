@@ -5,44 +5,41 @@
 #include "DL_list_err_proc.h"
 #include "general.h"
 
-struct DL_list_t DL_list_ctor(const int size, DL_list_err_t *last_err
-    ON_DEBUG(, const char log_path[] = ""))
-{
-    DL_list_t list = {};
+bool DL_list_ctor(DL_list_t *list, const int size ON_DEBUG(, const char log_path[] = "")) {
+    list->size = size;
+    list->head = -1;
+    list->tail = -1;
 
-    list.size = size;
-    list.head = -1;
-    list.tail = -1;
-
-    list.data = (DL_list_elem_t *) calloc(size + 1, sizeof(DL_list_elem_t));
-    if (list.data == NULL) {
-        DL_list_add_err(last_err, DL_ERR_ALLOC);
-        DEBUG_DL_LIST_ERROR(*last_err, "")
+    list->data = (DL_list_elem_t *) calloc(size + 1, sizeof(DL_list_elem_t));
+    if (list->data == NULL) {
+        DEBUG_DL_LIST_ERROR(DL_ERR_FILE_OPEN, "")
         CLEAR_MEMORY(exit_mark);
     }
-    for (size_t i = 0; i < size; i++) {
-        list.data[i].next = -1;
-        list.data[i].prev = -1;
-        list.data[i].value = DL_LIST_POISON_VALUE;
+    for (int i = 0; i < size; i++) {
+        list->data[i].next = -1;
+        list->data[i].prev = -1;
+        list->data[i].value = DL_LIST_POISON_VALUE;
     }
 
     ON_DEBUG
     (
-        strcpy(list.log_file_path, log_path);
-        list.log_file_ptr = fopen(log_path, "a");
-        if (list.log_file_ptr == NULL) {
-            DL_list_add_err(last_err, DL_ERR_FILE_OPEN);
-            DEBUG_DL_LIST_ERROR(*last_err, "")
+        strcpy(list->log_file_path, log_path);
+        list->log_file_ptr = fopen(log_path, "a");
+        if (list->log_file_ptr == NULL) {
+            DEBUG_DL_LIST_ERROR(DL_ERR_FILE_OPEN, "")
             CLEAR_MEMORY(exit_mark);
         }
-        setbuf(list.log_file_ptr, NULL); // disable buffering
+        setbuf(list->log_file_ptr, NULL); // disable buffering
     )
+
+    return true;
+
     exit_mark:
 
-    if (list.data != NULL) {
-        FREE(list.data);
+    if (list->data != NULL) {
+        FREE(list->data);
     }
-    return list;
+    return false;
 }
 
 
