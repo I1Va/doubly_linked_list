@@ -6,3 +6,5 @@ debug
 *.exe
 *.html
 logs
+test.dot
+test.png
