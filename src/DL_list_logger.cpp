@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <cstdlib>
 #include <stdio.h>
 #include <string.h>
@@ -7,13 +8,13 @@
 
 #include <stdarg.h>
 #include "DL_list_logger.h"
+#include "DL_list_proc.h"
 #include "general.h"
 
 // ON_DEBUG
 // (
 
-const char LOG_IMG_DIR_NAME[] = "/imgs";
-const char LOG_GRAPHVIZ_CODE_DIR_NAME[] = "/graphviz_code_dir";
+const int EDGE_MAX_WEIGHT = 1024;
 
 struct log_dir_t {
     char log_dir[MAX_LOG_FILE_PATH_SZ];
@@ -103,8 +104,6 @@ void DL_list_log_var_print(FILE *log_output_file_ptr, enum DL_list_log_type_t lo
 // TODO: graphviz_code auto generator
 
 
-const size_t MAX_SYSTEM_COMMAND_SIZE = 64;
-
 int get_dir_files_count(const char dir_path[]) {
     int file_count = 0;
 
@@ -121,8 +120,6 @@ int get_dir_files_count(const char dir_path[]) {
     return file_count;
 }
 
-
-
 log_dir_t DL_list_make_graphviz_dirs(char log_file_path[]) {
     log_dir_t logs_dir_obj = {};
 
@@ -130,38 +127,94 @@ log_dir_t DL_list_make_graphviz_dirs(char log_file_path[]) {
     char *log_dir_ptr = strrchr(log_file_path_ptr, '/');
     memcpy(logs_dir_obj.log_dir, log_file_path, (size_t) (log_dir_ptr - log_file_path) * sizeof(char));
 
-    strcpy(logs_dir_obj.img_dir, logs_dir_obj.log_dir);
-    strcat(logs_dir_obj.img_dir, LOG_IMG_DIR_NAME);
 
-    strcpy(logs_dir_obj.graphviz_codes_dir, logs_dir_obj.log_dir);
-    strcat(logs_dir_obj.graphviz_codes_dir, LOG_GRAPHVIZ_CODE_DIR_NAME);
+
+
+    snprintf(logs_dir_obj.img_dir, MAX_LOG_FILE_PATH_SZ, "%s/%s", logs_dir_obj.log_dir, LOG_IMG_DIR_NAME);
+    snprintf(logs_dir_obj.graphviz_codes_dir, MAX_LOG_FILE_PATH_SZ, "%s/%s", logs_dir_obj.log_dir, LOG_GRAPHVIZ_CODE_DIR_NAME);
 
     char mkdir_img_command[MAX_SYSTEM_COMMAND_SIZE] = {};
-    strcat(mkdir_img_command, "mkdir -p ");
-    strcat(mkdir_img_command, logs_dir_obj.img_dir);
+    snprintf(mkdir_img_command, MAX_SYSTEM_COMMAND_SIZE, "mkdir -p %s", logs_dir_obj.img_dir);
     system(mkdir_img_command);
 
     char mkdir_graphviz_code_command[MAX_SYSTEM_COMMAND_SIZE] = {};
-    strcat(mkdir_graphviz_code_command, "mkdir -p ");
-    strcat(mkdir_graphviz_code_command, logs_dir_obj.graphviz_codes_dir);
+    snprintf(mkdir_graphviz_code_command, MAX_SYSTEM_COMMAND_SIZE, "mkdir -p %s", logs_dir_obj.graphviz_codes_dir);
     system(mkdir_graphviz_code_command);
 
 
-    printf("count: %d\n", get_dir_files_count(logs_dir_obj.img_dir));
+    // printf("count: %d\n", get_dir_files_count(logs_dir_obj.img_dir));
     // printf("%s\n", logs_dir_obj.log_dir);
     // printf("%s\n", logs_dir_obj.img_dir);
     // printf("%s\n", logs_dir_obj.graphviz_codes_dir);
     return logs_dir_obj;
 }
 
-void DL_list_generate_graphviz_code(DL_list_t *list) {
+void graphviz_start_graph(FILE *graphviz_code_file) {
+    fprintf(graphviz_code_file, "digraph G{\n");
+    fprintf(graphviz_code_file, "   rankdir=LR;\n");
+}
+
+void graphviz_end_graph(FILE *graphviz_code_file) {
+    fprintf(graphviz_code_file, "}");
+    fclose(graphviz_code_file);
+}
+
+void graphviz_make_node(FILE *graphviz_code_file, int node_idx) {
+    fprintf(graphviz_code_file, "   NODE%d[shape=\"box\",label=\"%d\"];\n", node_idx, node_idx);
+}
+
+void graphviz_make_heavy_edge(FILE *graphviz_code_file, int node_idx1, int node_idx2) {
+    fprintf(graphviz_code_file, "   NODE%d -> NODE%d [weight=%d,color=\"white\"];\n", node_idx1, node_idx2);
+    // FIXME: кажется, что делать рербра белыми - костыль
+}
+
+void DL_list_log_html_insert_image(FILE *log_output_file_ptr, char short_img_path[], int width_percent) {
+    // img_path = strrchr(img_path, '/');
+    // img_path = strrchr(img_path, '/');
+    fprintf(log_output_file_ptr, "<img src=\"%s\" width=\"%d%%\">\n", short_img_path, width_percent);
+}
+
+bool DL_list_generate_graph_img(DL_list_t *list, char short_img_path[]) {
     log_dir_t log_dir_obj = DL_list_make_graphviz_dirs(list->log_file_path);
 
     int graph_num = get_dir_files_count(log_dir_obj.graphviz_codes_dir);
 
-    // char img_path =
-    // printf("path: %s\n", list->log_file_path);
-    // system("@mkdir -p ./" list->log_file_path "")
+    char graphviz_code_file_name[MAX_LOG_FILE_PATH_SZ] = {};
+    snprintf(graphviz_code_file_name, MAX_LOG_FILE_PATH_SZ, "%s/%d.dot", log_dir_obj.graphviz_codes_dir, graph_num);
+    // printf("gr file: %s\n", graphviz_code_file_name);
+    char img_file_name[MAX_LOG_FILE_PATH_SZ] = {};
+
+    snprintf(img_file_name, MAX_LOG_FILE_PATH_SZ, "%s/%d.png", log_dir_obj.img_dir, graph_num);
+    snprintf(short_img_path, MAX_LOG_FILE_PATH_SZ, "%s/%d.png", LOG_IMG_DIR_NAME, graph_num);
+    // printf("img file: %s\n", graphviz_code_file_name);
+
+    FILE* graphviz_code_file = fopen(graphviz_code_file_name, "w");
+    if (graphviz_code_file == NULL) {
+        return false;
+    }
+    // MAKING GRAPH
+
+    graphviz_start_graph(graphviz_code_file);
+    for (int i = 0; i < list->size; i++) {
+        graphviz_make_node(graphviz_code_file, i);
+    }
+    for (int i = 1; i < list->size; i++) {
+        graphviz_make_heavy_edge(graphviz_code_file, i - 1, i);
+    }
+    graphviz_end_graph(graphviz_code_file);
+    // MAKING GRAPH
+
+    char draw_graph_command[MAX_SYSTEM_COMMAND_SIZE] = {};
+    snprintf(draw_graph_command, MAX_SYSTEM_COMMAND_SIZE, "dot %s -Tpng -o %s",
+        graphviz_code_file_name, img_file_name);
+    system(draw_graph_command);
+    return true;
+}
+
+void create_logs_dir(const char log_dir[]) {
+    char mkdir_command[MAX_SYSTEM_COMMAND_SIZE] = {};
+    snprintf(mkdir_command, MAX_SYSTEM_COMMAND_SIZE, "mkdir -p %s", log_dir);
+    system(mkdir_command);
 }
 
 void DL_list_log_dump(DL_list_t *list, const char file_name[], const char func_name[], const int line_idx) {
@@ -183,7 +236,9 @@ void DL_list_log_dump(DL_list_t *list, const char file_name[], const char func_n
     fprintf_html_grn(list->log_file_ptr, "head: [%5d]\n", list->head);
     fprintf_html_grn(list->log_file_ptr, "tail: [%5d]\n", list->tail);
 
-    DL_list_generate_graphviz_code(list);
+    char short_img_path[MAX_LOG_FILE_PATH_SZ] = {};
+    DL_list_generate_graph_img(list, short_img_path);
+    DL_list_log_html_insert_image(list->log_file_ptr, short_img_path, LOG_WIDTH_VAL);
     // for (int i = 0; i < list.size; i++) {
     //     fprintf(list.log_output_file_ptr, list.data)
     // }

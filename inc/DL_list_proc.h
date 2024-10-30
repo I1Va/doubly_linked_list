@@ -16,7 +16,11 @@ struct DL_list_elem_t {
     DL_list_elem_value_t value;
 };
 
-const size_t MAX_LOG_FILE_PATH_SZ = 64;
+const char LOG_IMG_DIR_NAME[] = "imgs";
+const char LOG_GRAPHVIZ_CODE_DIR_NAME[] = "graphviz_code_dir";
+const size_t MAX_DIGITS_N = 32;
+const size_t MAX_LOG_FILE_PATH_SZ = 128;
+const size_t MAX_SYSTEM_COMMAND_SIZE = 128;
 
 struct DL_list_t {
 

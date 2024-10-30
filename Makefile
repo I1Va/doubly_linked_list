@@ -69,7 +69,7 @@ override CFLAGS += $(COMMONINC) # CFLAGS - environment variable. We can change i
 
 #There are src folder files. We can use wildcard $(SRC_DIR)/*.cpp, but it isn't a good manner
 CSRC = main.cpp src/DL_list_proc.cpp src/DL_list_err_proc.cpp src/DL_list_logger.cpp
-
+LOGS_DIR = ./logs
 #/---------------------------SUBMODULES--------------------\#
 SUBMODULES = general_output
 COMMONINC += $(addsuffix /inc,-I./$(SUBMODULES))
@@ -105,7 +105,6 @@ DEPS = $(COBJ:.o=.d)
 
 all: $(OUT_O_DIR)/$(OUTFILE_NAME) # Target all depends on "$(OUTFILE_NAME)" file creation. That is when we use "all" target, "$(OUTFILE_NAME)" file will be created
 
-
 $(OUT_O_DIR)/$(OUTFILE_NAME): $(COBJ) # Each "$(OUTFILE_NAME)" file depends on objects after ":". If we touch "$(OUTFILE_NAME)", all files from "$(COBJ)" will be touched
 # All $(COBJ) files will be linked and converted into "$@" file i.e. "$(OUTFILE_NAME)". Note: "$(OUTFILE_NAME)" is executable project file
 # echo $^ -> main.o args_proc.o conf_ctor.o error_processing.o output.o stack_funcs.o
@@ -128,6 +127,8 @@ $(DEPS) : $(OUT_O_DIR)/%.d : %.cpp # Object files creation
 clean:
 	@rm -rf $(COBJ) $(DEPS) $(OUT_O_DIR)/*.out $(OUT_O_DIR)/*.log
 
+clean_logs:
+	@rm -rf $(LOGS_DIR)
 NODEPS = clean
 
 ifeq (0, $(words $(findstring $(MAKECMDGOALS), $(NODEPS)))) # if we use make clean, we shouldn't include $(DEPS)

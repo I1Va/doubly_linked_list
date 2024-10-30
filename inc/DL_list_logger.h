@@ -19,6 +19,9 @@ enum DL_list_log_type_t {
 const size_t BORDER_SZ = 100;
 const size_t date_nmemb = 16;
 const size_t time_nmemb = 16;
+const size_t LOG_WIDTH_VAL = 75;
+
+void create_logs_dir(const char log_dir[]);
 
 void DL_list_log_file_start(FILE *stream);
 
