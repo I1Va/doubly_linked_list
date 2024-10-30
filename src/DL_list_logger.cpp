@@ -11,15 +11,20 @@
 ON_DEBUG
 (
 
+void DL_list_log_file_start(FILE *stream) {
+    fprintf(stream, "<pre>\n");
+}
+
 void DL_list_fprintf_border(FILE* stream, const char bord_char, const size_t bord_sz, bool new_line) {
+    fprintf(stream, HTML_BLACK);
     for (size_t i = 0; i < bord_sz; i++) {
-        fprintf(stream, WHT);
         fputc(bord_char, stream);
     }
     if (new_line) {
         fputc('\n', stream);
     }
 }
+
 
 void DL_list_fprintf_title(FILE *stream, const char tittle[], const char bord_char, const size_t bord_sz) {
     assert(tittle != NULL);
@@ -29,7 +34,7 @@ void DL_list_fprintf_title(FILE *stream, const char tittle[], const char bord_ch
     }
     size_t len = bord_sz - tittle_sz;
     DL_list_fprintf_border(stream, bord_char, len / 2, false);
-    fprintf_red(stream, "%s", tittle);
+    fprintf_html_red(stream, "%s", tittle);
     DL_list_fprintf_border(stream, bord_char, (len + 1) / 2, true);
 }
 
@@ -100,7 +105,10 @@ void DL_list_log_dump(DL_list_t *list, const char file_name[], const char func_n
     DL_list_log_print_time(list->log_file_ptr);
     DL_list_print_log_func_info(list->log_file_ptr, file_name, func_name, line_idx);
 
-    fprintf_red(list->log_file_ptr, "list [%p] at %s:%d\n", list, file_name, line_idx);
+    fprintf_html_red(list->log_file_ptr, "list [%p] at %s:%d\n", list, file_name, line_idx);
+    // for (int i = 0; i < list.size; i++) {
+    //     fprintf(list.log_output_file_ptr, )
+    // }
 
     DL_list_fprintf_border(list->log_file_ptr, '-', BORDER_SZ, true);
 }

@@ -19,7 +19,7 @@ struct DL_list_elem_t {
 struct DL_list_t {
     ON_DEBUG(FILE *log_file_ptr;)
 
-    size_t size;
+    int size;
 
     int head;
     int tail;
@@ -30,7 +30,7 @@ struct DL_list_t {
 
 const DL_list_elem_value_t DL_LIST_POISON_VALUE = 0xBADBAD;
 
-struct DL_list_t ctor(const size_t size, DL_list_err_t *last_err
+struct DL_list_t DL_list_ctor(const int size, DL_list_err_t *last_err
     ON_DEBUG(, const char log_path[]));
 
 #endif // DL_PROC_H

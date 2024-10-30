@@ -20,6 +20,8 @@ const size_t BORDER_SZ = 100;
 const size_t date_nmemb = 16;
 const size_t time_nmemb = 16;
 
+void DL_list_log_file_start(FILE *stream);
+
 void DL_list_fprintf_border(FILE* stream, const char bord_char, const size_t bord_sz, bool new_line);
 
 void DL_list_fprintf_title(FILE *stream, const char tittle[], const char bord_char, const size_t bord_sz);
@@ -37,5 +39,7 @@ void DL_list_log_var_print(FILE *log_output_file_ptr, enum DL_list_log_type_t lo
 void DL_list_log_dump(DL_list_t *list, const char file_name[], const char func_name[], const int line_idx);
 
 #define ListLogVar(log_output_file_ptr, log_type, fmt, ...) log_var_print(log_output_file_ptr, log_type, __FILE_NAME__, __PRETTY_FUNCTION__, __LINE__, fmt, ##__VA_ARGS__);
+
+#define ListLogDump(list) DL_list_log_dump(list, __FILE_NAME__, __PRETTY_FUNCTION__, __LINE__);
 
 #endif // DL_LIST_LOGGER_H

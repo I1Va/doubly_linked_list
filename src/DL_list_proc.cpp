@@ -1,10 +1,11 @@
+#include <cassert>
 #include <stdlib.h>
 
 #include "DL_list_proc.h"
 #include "DL_list_err_proc.h"
 #include "general.h"
 
-struct DL_list_t ctor(const size_t size, DL_list_err_t *last_err
+struct DL_list_t DL_list_ctor(const int size, DL_list_err_t *last_err
     ON_DEBUG(, const char log_path[] = ""))
 {
     DL_list_t list = {};
@@ -13,7 +14,7 @@ struct DL_list_t ctor(const size_t size, DL_list_err_t *last_err
     list.head = -1;
     list.tail = -1;
 
-    list.data = (DL_list_elem_t *) calloc(size, sizeof(DL_list_elem_t));
+    list.data = (DL_list_elem_t *) calloc(size + 1, sizeof(DL_list_elem_t));
     if (list.data == NULL) {
         DL_list_add_err(last_err, DL_ERR_ALLOC);
         DEBUG_DL_LIST_ERROR(*last_err, "")
@@ -41,4 +42,31 @@ struct DL_list_t ctor(const size_t size, DL_list_err_t *last_err
         FREE(list.data);
     }
     return list;
+}
+
+
+void DL_list_dtor(DL_list_t *list) {
+    assert(list != NULL);
+
+    if (list->data != 0) {
+        FREE(list->data);
+    }
+}
+
+void DL_list_push_back(DL_list_t *list, const DL_list_elem_value_t value) {
+    assert(list != NULL);
+
+    if (list->head == -1) {
+        list->data[1].value = value;
+        list->data[1].prev = 0;
+        list->head = 1;
+        list->tail = 1;
+    } else { //FIXME: Сделать
+        assert(list->head > 0);
+        DL_list_elem_t new_node = list->data[(list->head + 1) % list->size];
+        new_node.value = value;
+        new_node.prev = list->head;
+
+        list->head = (list->head + 1) % list->size;
+    }
 }
