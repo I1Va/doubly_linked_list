@@ -28,6 +28,7 @@ struct DL_list_t DL_list_ctor(const int size, DL_list_err_t *last_err
 
     ON_DEBUG
     (
+        strcpy(list.log_file_path, log_path);
         list.log_file_ptr = fopen(log_path, "a");
         if (list.log_file_ptr == NULL) {
             DL_list_add_err(last_err, DL_ERR_FILE_OPEN);

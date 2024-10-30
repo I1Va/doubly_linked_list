@@ -16,14 +16,19 @@ struct DL_list_elem_t {
     DL_list_elem_value_t value;
 };
 
+const size_t MAX_LOG_FILE_PATH_SZ = 64;
+
 struct DL_list_t {
-    ON_DEBUG(FILE *log_file_ptr;)
+
+
 
     int size;
 
     int head;
     int tail;
     DL_list_elem_t *data;
+    ON_DEBUG(FILE *log_file_ptr;)
+    ON_DEBUG(char log_file_path[MAX_LOG_FILE_PATH_SZ];)
 
 
 };

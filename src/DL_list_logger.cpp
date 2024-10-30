@@ -1,15 +1,25 @@
+#include <cstdlib>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <time.h>
+#include <dirent.h>
 
 #include <stdarg.h>
 #include "DL_list_logger.h"
 #include "general.h"
 
+// ON_DEBUG
+// (
 
-ON_DEBUG
-(
+const char LOG_IMG_DIR_NAME[] = "/imgs";
+const char LOG_GRAPHVIZ_CODE_DIR_NAME[] = "/graphviz_code_dir";
+
+struct log_dir_t {
+    char log_dir[MAX_LOG_FILE_PATH_SZ];
+    char img_dir[MAX_LOG_FILE_PATH_SZ];
+    char graphviz_codes_dir[MAX_LOG_FILE_PATH_SZ];
+};
 
 void DL_list_log_file_start(FILE *stream) {
     fprintf(stream, "<pre>\n");
@@ -90,6 +100,69 @@ void DL_list_log_var_print(FILE *log_output_file_ptr, enum DL_list_log_type_t lo
     DL_list_fprintf_border(log_output_file_ptr, '-', BORDER_SZ, true);
 }
 
+// TODO: graphviz_code auto generator
+
+
+const size_t MAX_SYSTEM_COMMAND_SIZE = 64;
+
+int get_dir_files_count(const char dir_path[]) {
+    int file_count = 0;
+
+    DIR *dirp;
+    struct dirent *entry;
+
+    dirp = opendir(dir_path);
+    while ((entry = readdir(dirp)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            file_count++;
+        }
+    }
+    closedir(dirp);
+    return file_count;
+}
+
+
+
+log_dir_t DL_list_make_graphviz_dirs(char log_file_path[]) {
+    log_dir_t logs_dir_obj = {};
+
+    char *log_file_path_ptr = (char *) log_file_path;
+    char *log_dir_ptr = strrchr(log_file_path_ptr, '/');
+    memcpy(logs_dir_obj.log_dir, log_file_path, (size_t) (log_dir_ptr - log_file_path) * sizeof(char));
+
+    strcpy(logs_dir_obj.img_dir, logs_dir_obj.log_dir);
+    strcat(logs_dir_obj.img_dir, LOG_IMG_DIR_NAME);
+
+    strcpy(logs_dir_obj.graphviz_codes_dir, logs_dir_obj.log_dir);
+    strcat(logs_dir_obj.graphviz_codes_dir, LOG_GRAPHVIZ_CODE_DIR_NAME);
+
+    char mkdir_img_command[MAX_SYSTEM_COMMAND_SIZE] = {};
+    strcat(mkdir_img_command, "mkdir -p ");
+    strcat(mkdir_img_command, logs_dir_obj.img_dir);
+    system(mkdir_img_command);
+
+    char mkdir_graphviz_code_command[MAX_SYSTEM_COMMAND_SIZE] = {};
+    strcat(mkdir_graphviz_code_command, "mkdir -p ");
+    strcat(mkdir_graphviz_code_command, logs_dir_obj.graphviz_codes_dir);
+    system(mkdir_graphviz_code_command);
+
+
+    printf("count: %d\n", get_dir_files_count(logs_dir_obj.img_dir));
+    // printf("%s\n", logs_dir_obj.log_dir);
+    // printf("%s\n", logs_dir_obj.img_dir);
+    // printf("%s\n", logs_dir_obj.graphviz_codes_dir);
+    return logs_dir_obj;
+}
+
+void DL_list_generate_graphviz_code(DL_list_t *list) {
+    log_dir_t log_dir_obj = DL_list_make_graphviz_dirs(list->log_file_path);
+
+    int graph_num = get_dir_files_count(log_dir_obj.graphviz_codes_dir);
+
+    // char img_path =
+    // printf("path: %s\n", list->log_file_path);
+    // system("@mkdir -p ./" list->log_file_path "")
+}
 
 void DL_list_log_dump(DL_list_t *list, const char file_name[], const char func_name[], const int line_idx) {
     if (list == NULL) {
@@ -106,11 +179,16 @@ void DL_list_log_dump(DL_list_t *list, const char file_name[], const char func_n
     DL_list_print_log_func_info(list->log_file_ptr, file_name, func_name, line_idx);
 
     fprintf_html_red(list->log_file_ptr, "list [%p] at %s:%d\n", list, file_name, line_idx);
+    fprintf_html_grn(list->log_file_ptr, "size: [%5d]\n", list->size);
+    fprintf_html_grn(list->log_file_ptr, "head: [%5d]\n", list->head);
+    fprintf_html_grn(list->log_file_ptr, "tail: [%5d]\n", list->tail);
+
+    DL_list_generate_graphviz_code(list);
     // for (int i = 0; i < list.size; i++) {
-    //     fprintf(list.log_output_file_ptr, )
+    //     fprintf(list.log_output_file_ptr, list.data)
     // }
 
     DL_list_fprintf_border(list->log_file_ptr, '-', BORDER_SZ, true);
 }
 
-)
+// )

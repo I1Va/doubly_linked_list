@@ -1,0 +1,15 @@
+digraph G{
+    rankdir=LR;
+    node[color="red",fontsize=14];
+    edge[color="darkgreen",fontcolor="blue",fontsize=12];
+    OPEN[shape="rectangle",style="filled",fillcolor="lightgrey"];
+    CLOSED[shape="octagon",label="Финиш"];
+    VERIFIED[shape="rectangle",style="rounded"];
+    OPEN->RESOLVED->VERIFIED->CLOSED;
+    OPEN->CLOSED[style="bold"];
+    VERIFIED->OPEN[label="обнаружены ошибки",style="dashed",arrowhead="dot"];
+
+
+    NODE1[shape="octagon",label="1"]
+    NODE2[shape="octagon",label="2"]
+}
