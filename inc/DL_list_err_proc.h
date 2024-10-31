@@ -7,6 +7,9 @@ enum DL_list_err_t {
     DL_ERR_OK         = 0ull,
     DL_ERR_FILE_OPEN  = 1ull << 0,
     DL_ERR_ALLOC      = 1ull << 1,
+    DL_ERR_PUSH       = 1ull << 2,
+    DL_ERR_INSERT     = 1ull << 3,
+
 };
 
 const size_t ERR_DESCR_MAX_SIZE = 128;

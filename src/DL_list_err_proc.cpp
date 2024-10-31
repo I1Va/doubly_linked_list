@@ -16,4 +16,6 @@ void DL_list_err_get_descr(const enum DL_list_err_t err_code, char err_descr_str
 
     DESCR_(err_code, DL_ERR_ALLOC);
     DESCR_(err_code, DL_ERR_FILE_OPEN);
+    DESCR_(err_code, DL_ERR_PUSH);
+    DESCR_(err_code, DL_ERR_INSERT);
 }

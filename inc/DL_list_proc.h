@@ -13,6 +13,8 @@ struct DL_list_elem_t {
     int next;
     int prev;
 
+    int idx;
+
     DL_list_elem_value_t value;
 };
 
@@ -31,6 +33,7 @@ struct DL_list_t {
     int head;
     int tail;
     DL_list_elem_t *data;
+
     ON_DEBUG(FILE *log_file_ptr;)
     ON_DEBUG(char log_file_path[MAX_LOG_FILE_PATH_SZ];)
 
@@ -39,6 +42,14 @@ struct DL_list_t {
 
 const DL_list_elem_value_t DL_LIST_POISON_VALUE = 0xBADBAD;
 
+void DL_list_insert(DL_list_t *list, const int idx, const DL_list_elem_value_t value, DL_list_err_t *return_err);
+
+void DL_list_dtor(DL_list_t *list);
+
 bool DL_list_ctor(DL_list_t *list, const int size ON_DEBUG(, const char log_path[]));
+
+void DL_list_push_back(DL_list_t *list, const DL_list_elem_value_t value, DL_list_err_t *return_err);
+
+void DL_list_insert(DL_list_t *list, const int idx, const DL_list_elem_value_t value, DL_list_err_t *return_err);
 
 #endif // DL_PROC_H
