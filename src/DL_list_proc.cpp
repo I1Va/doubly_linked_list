@@ -1,18 +1,39 @@
 #include <cassert>
 #include <cstddef>
+#include <cstdlib>
 #include <stdlib.h>
 
 #include "DL_list_proc.h"
 #include "DL_list_err_proc.h"
+#include "error_processing.h"
 #include "general.h"
 
-bool DL_list_ctor(DL_list_t *list, const int size ON_DEBUG(, const char log_path[] = "")) {
-    list->size = size;
+typedef int stack_elem_t;
+#include "stack_funcs.h"
 
-    list->data = (DL_list_elem_t *) calloc(size + 1, sizeof(DL_list_elem_t));
+bool DL_list_ctor(DL_list_t *list, const int size, const char log_path[] = "") {
+    stk_err stack_err = STK_ERR_OK;
+
+    list->size = size + 1;
+    list->data = (DL_list_elem_t *) calloc((size_t) list->size, sizeof(DL_list_elem_t));
     if (list->data == NULL) {
         DEBUG_DL_LIST_ERROR(DL_ERR_ALLOC, "")
         CLEAR_MEMORY(exit_mark);
+    }
+
+    list->free_addr_stack = {};
+    STACK_INIT(&list->free_addr_stack, (size_t) list->size, &stack_err);
+    if (stack_err != STK_ERR_OK) {
+        DEBUG_DL_LIST_ERROR(DL_ERR_STACK, "stack_init")
+        CLEAR_MEMORY(exit_mark)
+    }
+
+    for (int i = list->size - 1; i > 0; i--) {
+        stack_push(&list->free_addr_stack, i, &stack_err);
+        if (stack_err != STK_ERR_OK) {
+            DEBUG_DL_LIST_ERROR(DL_ERR_STACK, "stack_push")
+            CLEAR_MEMORY(exit_mark)
+        }
     }
 
     list->data[0].next = 0;
@@ -20,12 +41,14 @@ bool DL_list_ctor(DL_list_t *list, const int size ON_DEBUG(, const char log_path
     list->data[0].addr = 0;
     list->data[0].value = DL_LIST_POISON_VALUE;
 
-    for (int i = 1; i < size; i++) {
+    for (int i = 1; i < list->size; i++) {
         list->data[i].next = -1;
         list->data[i].prev = -1;
         list->data[i].addr  = i;
         list->data[i].value = DL_LIST_POISON_VALUE;
     }
+
+    if (log_path) {};
 
     ON_DEBUG
     (
@@ -45,24 +68,27 @@ bool DL_list_ctor(DL_list_t *list, const int size ON_DEBUG(, const char log_path
     if (list->data != NULL) {
         FREE(list->data);
     }
+    stack_destroy(&list->free_addr_stack);
+
     return false;
 }
 
 void DL_list_dtor(DL_list_t *list) {
     assert(list != NULL);
 
-    if (list->data != 0) {
+    if (list->data != NULL) {
         FREE(list->data);
     }
+    stack_destroy(&list->free_addr_stack);
 }
 
-int DL_list_get_free_cell_addr(DL_list_t *list) { // FIXME: slow: O(N)
-    for (int i = 0; i < list->size; i++) {
-        if (list->data[i].next == -1 && list->data[i].prev == -1 && list->data[i].value == DL_LIST_POISON_VALUE) {
-            return i;
-        }
+int DL_list_get_free_cell_addr(DL_list_t *list) {
+    if (list->free_addr_stack.size == 0) {
+        return -1;
     }
-    return -1;
+    stk_err stack_err = STK_ERR_OK;
+
+    return stack_pop(&list->free_addr_stack, &stack_err);
 }
 
 
@@ -229,16 +255,28 @@ int DL_list_insert_front(DL_list_t *list, const int addr, const DL_list_elem_val
 bool DL_list_pop(DL_list_t *list, const int addr) {
     assert(list != NULL);
 
-    if (addr >= list->size || addr < 0) {
+    if (addr >= list->size || addr < 0 || addr == 0) {
         DEBUG_DL_LIST_ERROR(DL_ERR_INSERT, "invalid addr: {%d}", addr);
         return false;
     }
 
     DL_list_elem_t *mid_node = &list->data[addr];
+    if (mid_node->next == -1 || mid_node->prev == -1) {
+        DEBUG_DL_LIST_ERROR(DL_ERR_POP, "invalid addr: {%d}", addr);
+        return false;
+    }
+
     DL_list_elem_t *left_node = &list->data[mid_node->prev];
     DL_list_elem_t *right_node = &list->data[mid_node->next];
 
     DL_list_reset_node(mid_node);
+    stk_err stack_err = STK_ERR_OK;
+
+    stack_push(&list->free_addr_stack, mid_node->addr, &stack_err);
+    if (stack_err != STK_ERR_OK) {
+        DEBUG_DL_LIST_ERROR(DL_ERR_STACK, "stack_push")
+        return false;
+    }
 
     left_node->next = right_node->addr;
     right_node->prev = left_node->addr;
@@ -281,5 +319,17 @@ void DL_list_clear(DL_list_t *list) {
     }
     list->data[0].next = 0;
     list->data[0].prev = 0;
+    stk_err stack_err = STK_ERR_OK;
+
+    while (list->free_addr_stack.size) {
+        stack_pop(&list->free_addr_stack, &stack_err);
+    }
+    for (int i = list->size - 1; i > 0; i--) {
+        stack_push(&list->free_addr_stack, i, &stack_err);
+        if (stack_err != STK_ERR_OK) {
+            DEBUG_DL_LIST_ERROR(DL_ERR_STACK, "stack_push")
+            return;
+        }
+    }
 
 }

@@ -6,6 +6,9 @@
 
 #include "general.h"
 
+typedef int stack_elem_t;
+#include "stack_funcs.h"
+
 typedef int DL_list_elem_value_t;
 
 struct DL_list_elem_t {
@@ -31,10 +34,10 @@ struct DL_list_t {
 
     DL_list_elem_t *data;
 
-    ON_DEBUG(FILE *log_file_ptr;)
-    ON_DEBUG(char log_file_path[MAX_LOG_FILE_PATH_SZ];)
+    stack_t free_addr_stack;
 
-
+    FILE *log_file_ptr;
+    char log_file_path[MAX_LOG_FILE_PATH_SZ];
 };
 
 
@@ -56,7 +59,9 @@ int DL_list_insert_back(DL_list_t *list, const int addr, const DL_list_elem_valu
 
 int DL_list_insert_front(DL_list_t *list, const int addr, const DL_list_elem_value_t value);
 
-bool DL_list_ctor(DL_list_t *list, const int size ON_DEBUG(, const char log_path[]));
+int DL_list_get_free_cell_addr(DL_list_t *list);
+
+bool DL_list_ctor(DL_list_t *list, const int size, const char log_path[]);
 
 void DL_list_dtor(DL_list_t *list);
 
@@ -65,5 +70,7 @@ bool DL_list_pop(DL_list_t *list, const int addr);
 int DL_list_find(DL_list_t *list, const DL_list_elem_value_t value);
 
 void DL_list_clear(DL_list_t *list);
+
+void DL_list_reset_node(DL_list_elem_t *node);
 
 #endif // DL_PROC_H

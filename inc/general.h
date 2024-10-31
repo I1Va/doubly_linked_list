@@ -1,5 +1,5 @@
-#ifndef GENERAL_H
-#define GENERAL_H
+#ifndef DL_LIST_GENERAL_H
+#define DL_LIST_GENERAL_H
 
 
 #define GRN "\e[0;32m"
@@ -46,4 +46,4 @@
 #endif // _DEBUG
 
 
-#endif // GENERAL_H
+#endif // DL_LIST_GENERAL_H

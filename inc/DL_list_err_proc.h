@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-#include "DL_list_proc.h";
+#include "DL_list_proc.h"
 
 const size_t MAX_CYCLE_ITERATIONS = 1ul << 17;
 
@@ -16,7 +16,9 @@ enum DL_list_err_t {
     DL_ERR_CYCLED                   = 1ull << 4,
     DL_ERR_INVALID_NODE             = 1ull << 5,
     DL_ERR_INVALID_NODE_CONNECTION  = 1ull << 6,
-
+    DL_ERR_STACK                    = 1ull << 7,
+    DL_ERR_POP                      = 1ull << 8,
+    DL_ERR_SYSTEM                   = 1ull << 9,
 
 };
 

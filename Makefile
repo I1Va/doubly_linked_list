@@ -71,11 +71,10 @@ override CFLAGS += $(COMMONINC) # CFLAGS - environment variable. We can change i
 CSRC = main.cpp src/DL_list_proc.cpp src/DL_list_err_proc.cpp src/DL_list_logger.cpp
 LOGS_DIR = ./logs
 #/---------------------------SUBMODULES--------------------\#
-SUBMODULES = general_output
+SUBMODULES = stack
 COMMONINC += $(addsuffix /inc,-I./$(SUBMODULES))
 CSRC += $(wildcard $(addsuffix /src,$(SUBMODULES))/*.cpp)
 #/---------------------------SUBMODULES--------------------\#
-
 
 
 COBJ := $(addprefix $(OUT_O_DIR)/,$(CSRC:.cpp=.o))

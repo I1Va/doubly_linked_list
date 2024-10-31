@@ -8,20 +8,13 @@
 
 #include <stdarg.h>
 #include "DL_list_logger.h"
+#include "DL_list_err_proc.h"
 #include "DL_list_proc.h"
 #include "general.h"
 
 // ON_DEBUG
 // (
 
-const int EDGE_MAX_WEIGHT = 1024;
-const int SIMP_EDGE_WIDTH = 2;
-
-struct log_dir_t {
-    char log_dir[MAX_LOG_FILE_PATH_SZ];
-    char img_dir[MAX_LOG_FILE_PATH_SZ];
-    char graphviz_codes_dir[MAX_LOG_FILE_PATH_SZ];
-};
 
 void DL_list_log_file_start(FILE *stream) {
     fprintf(stream, "<pre>\n");
@@ -102,9 +95,6 @@ void DL_list_log_var_print(FILE *log_output_file_ptr, enum DL_list_log_type_t lo
     DL_list_fprintf_border(log_output_file_ptr, '-', BORDER_SZ, true);
 }
 
-// TODO: graphviz_code auto generator
-
-
 int get_dir_files_count(const char dir_path[]) {
     int file_count = 0;
 
@@ -136,11 +126,15 @@ log_dir_t DL_list_make_graphviz_dirs(char log_file_path[]) {
 
     char mkdir_img_command[MAX_SYSTEM_COMMAND_SIZE] = {};
     snprintf(mkdir_img_command, MAX_SYSTEM_COMMAND_SIZE, "mkdir -p %s", logs_dir_obj.img_dir);
-    system(mkdir_img_command);
+    if (system(mkdir_img_command) != 0) {
+        DEBUG_DL_LIST_ERROR(DL_ERR_SYSTEM, "execution: '%s' failed", mkdir_img_command);
+    }
 
     char mkdir_graphviz_code_command[MAX_SYSTEM_COMMAND_SIZE] = {};
     snprintf(mkdir_graphviz_code_command, MAX_SYSTEM_COMMAND_SIZE, "mkdir -p %s", logs_dir_obj.graphviz_codes_dir);
-    system(mkdir_graphviz_code_command);
+    if (system(mkdir_graphviz_code_command) != 0) {
+        DEBUG_DL_LIST_ERROR(DL_ERR_SYSTEM, "execution: '%s' failed", mkdir_graphviz_code_command);
+    }
 
 
     // printf("count: %d\n", get_dir_files_count(logs_dir_obj.img_dir));
@@ -233,14 +227,21 @@ bool DL_list_generate_graph_img(DL_list_t *list, char short_img_path[]) {
     char draw_graph_command[MAX_SYSTEM_COMMAND_SIZE] = {};
     snprintf(draw_graph_command, MAX_SYSTEM_COMMAND_SIZE, "dot %s -Tpng -o %s",
         graphviz_code_file_name, img_file_name);
-    system(draw_graph_command);
+    if (system(draw_graph_command) != 0) {
+        DEBUG_DL_LIST_ERROR(DL_ERR_SYSTEM, "execution: '%s' failed", draw_graph_command);
+        return false;
+    }
     return true;
 }
 
-void create_logs_dir(const char log_dir[]) {
+bool create_logs_dir(const char log_dir[]) {
     char mkdir_command[MAX_SYSTEM_COMMAND_SIZE] = {};
     snprintf(mkdir_command, MAX_SYSTEM_COMMAND_SIZE, "mkdir -p %s", log_dir);
-    system(mkdir_command);
+    if (system(mkdir_command) != 0) {
+        DEBUG_DL_LIST_ERROR(DL_ERR_SYSTEM, "execution: '%s' failed", mkdir_command);
+        return false;
+    }
+    return true;
 }
 
 void DL_list_log_dump(DL_list_t *list, const char file_name[], const char func_name[], const int line_idx) {

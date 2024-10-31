@@ -24,6 +24,8 @@ void DL_list_err_get_descr(const enum DL_list_err_t err_code, char err_descr_str
     DESCR_(err_code, DL_ERR_CYCLED);
     DESCR_(err_code, DL_ERR_INVALID_NODE);
     DESCR_(err_code, DL_ERR_INVALID_NODE_CONNECTION);
+    DESCR_(err_code, DL_ERR_STACK);
+    DESCR_(err_code, DL_ERR_SYSTEM);
 
     if (!error) {
         sprintf(err_descr_str, "ALL IS OK:)");
