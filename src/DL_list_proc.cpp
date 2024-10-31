@@ -6,8 +6,6 @@
 #include "DL_list_err_proc.h"
 #include "general.h"
 
-const size_t MAX_CYCLE_ITERATIONS = 1ul << 17;
-
 bool DL_list_ctor(DL_list_t *list, const int size ON_DEBUG(, const char log_path[] = "")) {
     list->size = size;
 
@@ -267,6 +265,7 @@ int DL_list_find(DL_list_t *list, const DL_list_elem_value_t value) {
         if (node.next == -1) {
             DEBUG_DL_LIST_ERROR(DL_ERR_INVALID_NODE,
                 "reachable node has invalid parameters: addr: {%d}, next: {%d} prev: {%d}", node.addr, node.next, node.prev)
+            return -1;
         }
         node = list->data[node.next];
         iterations++;

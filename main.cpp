@@ -30,14 +30,15 @@ int main() {
     DL_list_pop(&list, 3);
 
     printf("addr of '421':{%d}", DL_list_find(&list, 228));
-    DL_list_clear(&list);
-    // DL_list_insert_front(&list, 8, 7500);
+    // DL_list_clear(&list);
+    DL_list_insert_front(&list, 8, 7500);
     // DL_list_push_back(&list, 8, &last_err);
     // DL_list_push_back(&list, 13, &last_err);
     // DL_list_push_back(&list, 21, &last_err);
     // DL_list_push_back(&list, 34, &last_err);
     // DL_list_push_back(&list, 52, &last_err);
 
+    DEBUG_DL_LIST_ERROR(DL_list_verify(list), "")
     ListLogDump(&list);
 
     // DL_list_insert(&list, 4, 52, &last_err);

@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 #include "general.h"
-#include "DL_list_err_proc.h"
 
 typedef int DL_list_elem_value_t;
 
