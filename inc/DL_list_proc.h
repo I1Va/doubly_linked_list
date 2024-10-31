@@ -13,7 +13,7 @@ struct DL_list_elem_t {
     int next;
     int prev;
 
-    int idx;
+    int addr;
 
     DL_list_elem_value_t value;
 };
@@ -30,8 +30,6 @@ struct DL_list_t {
 
     int size;
 
-    int head;
-    int tail;
     DL_list_elem_t *data;
 
     ON_DEBUG(FILE *log_file_ptr;)
@@ -40,16 +38,33 @@ struct DL_list_t {
 
 };
 
+
 const DL_list_elem_value_t DL_LIST_POISON_VALUE = 0xBADBAD;
 
-void DL_list_insert(DL_list_t *list, const int idx, const DL_list_elem_value_t value, DL_list_err_t *return_err);
+DL_list_elem_value_t *DL_list_front(DL_list_t *list);
 
-void DL_list_dtor(DL_list_t *list);
+DL_list_elem_value_t *DL_list_back(DL_list_t *list);
+
+DL_list_elem_value_t *DL_list_next_elem(DL_list_t *list, const int addr);
+
+DL_list_elem_value_t *DL_list_prev_elem(DL_list_t *list, const int addr);
+
+int DL_list_push_back(DL_list_t *list, const DL_list_elem_value_t value);
+
+int DL_list_push_front(DL_list_t *list, const DL_list_elem_value_t value);
+
+int DL_list_insert_back(DL_list_t *list, const int addr, const DL_list_elem_value_t value);
+
+int DL_list_insert_front(DL_list_t *list, const int addr, const DL_list_elem_value_t value);
 
 bool DL_list_ctor(DL_list_t *list, const int size ON_DEBUG(, const char log_path[]));
 
-void DL_list_push_back(DL_list_t *list, const DL_list_elem_value_t value, DL_list_err_t *return_err);
+void DL_list_dtor(DL_list_t *list);
 
-void DL_list_insert(DL_list_t *list, const int idx, const DL_list_elem_value_t value, DL_list_err_t *return_err);
+bool DL_list_pop(DL_list_t *list, const int addr);
+
+int DL_list_find(DL_list_t *list, const DL_list_elem_value_t value);
+
+void DL_list_clear(DL_list_t *list);
 
 #endif // DL_PROC_H

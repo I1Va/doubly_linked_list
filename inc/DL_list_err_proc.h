@@ -4,11 +4,13 @@
 #include <string.h>
 
 enum DL_list_err_t {
-    DL_ERR_OK         = 0ull,
-    DL_ERR_FILE_OPEN  = 1ull << 0,
-    DL_ERR_ALLOC      = 1ull << 1,
-    DL_ERR_PUSH       = 1ull << 2,
-    DL_ERR_INSERT     = 1ull << 3,
+    DL_ERR_OK           = 0ull,
+    DL_ERR_FILE_OPEN    = 1ull << 0,
+    DL_ERR_ALLOC        = 1ull << 1,
+    DL_ERR_PUSH         = 1ull << 2,
+    DL_ERR_INSERT       = 1ull << 3,
+    DL_ERR_CYCLED       = 1ull << 4,
+    DL_ERR_INVALID_NODE = 1ull << 5,
 
 };
 
